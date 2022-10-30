@@ -52,7 +52,7 @@ let appleY = Math.round(Math.random()*tileCount);
 let aplleColors = ["red", "gold", "purple"]
 
 // -------------关于方向控制-------------------
-//用于解决方向键多次快速按下，产生反向行动的bug
+//用于解决方向键多次快速按下，产生反向行动，导致死亡的bug
 let flag = false;
 
 //--------------记录分数和音效--------------
