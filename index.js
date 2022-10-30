@@ -7,16 +7,17 @@ const ctx = canvas.getContext("2d");
 
 
 //--------------关于棋盘--------------
+//每个格子的大小
+let tileSize = 20;
 //一行分为几个格子 
-let tileCount = 20;
-//每个格子的大小，最后-2是为了美观
-let tileSize = canvas.width / tileCount - 2;
-
+let tileCount = canvas.width / tileSize;
+//蛇部位及苹果的每个格子大小，-1来美观是为了美观
+let tileSnakeSize = tileSize - 2;
 
 //--------------关于蛇--------------
 //蛇头的坐标
-let headX = 10;
-let headY = 10;
+let headX = tileCount/2;
+let headY = tileCount/2;
 
 //构建一个蛇身
 class SnakePart {
@@ -45,16 +46,21 @@ let yVelocity = 0;
 
 
 //--------------关于苹果--------------
-//苹果的坐标
-let appleX = 5;
-let appleY = 5;
+//苹果的坐标,第几个格子
+let appleX = Math.round(Math.random()*tileCount);
+let appleY = Math.round(Math.random()*tileCount);
+let aplleColors = ["red", "gold", "purple"]
+
+// -------------关于方向控制-------------------
+let keyPressed = false;
 
 //--------------记录分数和音效--------------
 //记录分数
 let score = 0;
 
 //音效
-const gulpSound = new Audio("gulp.mp3");
+const gulpSound = new Audio("/sounds/gulp.mp3");
+const gameOver = new Audio("/sounds/game_over.wav")
 
 
 //-----------------------------------------
@@ -75,9 +81,9 @@ function drawGame() {
   //如果游戏结束，停止循环
   let result = isGameOver();
   if (result) {
+    // gameOver.play();
     return;
   }
-
   //黑色背景
   clearScreen();
 
@@ -97,22 +103,24 @@ function drawGame() {
   if (score > 5) {
     speed = 10;
   }
-  if (score > 10) {
+  else if (score > 10) {
     speed = 13;
   }
+
+
   //用setTimeOut（）不停的循环游戏：每隔（1000/speed）时间就更新一下游戏页面，蛇就动起来了。1000是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
   setTimeout(drawGame, 1000 / speed);
 }
 
 
-//在画板的右上方更新分数。分数可以用变量score。x坐标=canvas.width - 50, y坐标=10
-//要求：字体样式选择 白色 10px Verdana
+//在画板的右上方更新分数。分数可以用变量score。x坐标=canvas.width - 80, y坐标=20
+//要求：字体样式选择 白色 20px Verdana
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function drawScore() {
   ctx.fillStyle = "rgb(255,255,255)";
-  ctx.font = "10px Verdana"; 
-  ctx.fillText("分数"+score,canvas.width - 50,10);  
+  ctx.font = "20px Verdana"; 
+  ctx.fillText("分数"+score,canvas.width - 80,20);  
 }
 
 //在画板上画一个黑色背景，大小就是整个画板的大小
@@ -132,7 +140,7 @@ function drawApple() {
   else {
     ctx.fillStyle = "rgb(255,0,0)"
   }
-  ctx.fillRect(appleX * tileCount, appleY * tileCount, tileSize, tileSize);
+  ctx.fillRect(appleX * tileSize, appleY * tileSize, tileSnakeSize, tileSnakeSize);
 }
 
 
@@ -145,23 +153,22 @@ function drawSnake() {
   console.log(snakeParts)
   snakeParts.forEach(function(SnakePart){
     ctx.fillStyle = "green";
-    ctx.fillRect(SnakePart.x * tileCount, SnakePart.y * tileCount, tileSize, tileSize);
+    ctx.fillRect(SnakePart.x * tileSize, SnakePart.y * tileSize, tileSnakeSize, tileSnakeSize);
   })
   //2.把吃到的苹果加到蛇的身体上（以下代码不用改动和添加）
-  snakeParts.push(new SnakePart(headX, headY)); //把新的蛇方块加到snakeParts数组的最后面
-  while (snakeParts.length > tailLength) {
-    snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
-  }
-
+    snakeParts.push(new SnakePart(headX, headY)); //把新的蛇方块加到snakeParts数组的最后面
+    while (snakeParts.length > tailLength) {
+      snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
+    }
   //3.画蛇头（以下代码不用改动和添加）
   ctx.fillStyle = "blue";
-  ctx.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize);
+  ctx.fillRect(headX * tileSize, headY * tileSize, tileSnakeSize, tileSnakeSize);
 }
 
 //改变蛇头的位置
-function changeSnakePosition() {
-  headX = headX + xVelocity;
-  headY = headY + yVelocity;
+function changeSnakePosition() {  
+    headX = headX + xVelocity;
+    headY = headY + yVelocity;
 }
 
 
@@ -173,14 +180,18 @@ function changeSnakePosition() {
 function checkAppleCollision() {
   if(headX === appleX && headY === appleY){
     tailLength++;
+    //音乐播放
+    gulpSound.play();
     if (((tailLength - 2)) % 4 == 0) {
       score = score + 2;
     }
     else {
       score++;
     }
+    //随机产生苹果坐标，及颜色编号
     appleX = Math.round(Math.random()*tileCount);
     appleY = Math.round(Math.random()*tileCount);
+    appleColor= Math.round(Math.random()*aplleColors.length);
     console.log(appleX+"ddd"+appleY)
   }
 }
@@ -207,6 +218,7 @@ function isGameOver() {
   snakeParts.forEach(function(snakepart){
     if(snakepart.x === headX && snakepart.y === headY)
     {
+      console.log("die body")
       gameOver = true;
     }
   })
@@ -216,7 +228,7 @@ function isGameOver() {
   if(gameOver === true){
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.font = "70px Verdana"; 
-    ctx.fillText("游戏结束!",3*canvas.width/20,canvas.width/2);  
+    ctx.fillText("游戏结束!",tileCount/4*tileSize,canvas.height/2);  
   }
 
   return gameOver;
@@ -225,7 +237,6 @@ function isGameOver() {
 
 //给键盘控制加一个监听器，当按下键盘上的上下左右的时候，会改变蛇的走位
 document.body.addEventListener("keydown", keyDown);
-
 function keyDown(event) {
   //按键盘的上键 
   //event.keycode这些数字都是有固定搭配的，不同数字对应不同的方向
@@ -262,5 +273,4 @@ function keyDown(event) {
     inputsXVelocity = 1;
   }
 }
-
 drawGame();
