@@ -52,7 +52,8 @@ let appleY = Math.round(Math.random()*tileCount);
 let aplleColors = ["red", "gold", "purple"]
 
 // -------------关于方向控制-------------------
-let keyPressed = false;
+//用于解决方向键多次快速按下，产生反向行动的bug
+let flag = false;
 
 //--------------记录分数和音效--------------
 //记录分数
@@ -78,12 +79,16 @@ function drawGame() {
   //更新蛇的位子：当你用按下上下左右的按键后，蛇就会动起来，因为每次蛇头的横坐标或者纵坐标都在+1，-1
   changeSnakePosition();
 
+  //
+  flag = true;
+
   //如果游戏结束，停止循环
   let result = isGameOver();
   if (result) {
     // gameOver.play();
     return;
   }
+ 
   //黑色背景
   clearScreen();
 
@@ -168,7 +173,8 @@ function drawSnake() {
 //改变蛇头的位置
 function changeSnakePosition() {  
     headX = headX + xVelocity;
-    headY = headY + yVelocity;
+  headY = headY + yVelocity;
+ 
 }
 
 
@@ -215,11 +221,14 @@ function isGameOver() {
 
   //查看蛇头是否撞到自己的身体，如果撞到，就把变量gameover变成true
   //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
-  snakeParts.forEach(function(snakepart){
+  snakeParts.forEach(function (snakepart, index) {
     if(snakepart.x === headX && snakepart.y === headY)
     {
-      console.log("die body")
-      gameOver = true;
+      if (index != 0) {
+        console.log("die body")
+        console.log("当前snake下标"+index)
+        gameOver = true;
+      }
     }
   })
 
@@ -241,36 +250,40 @@ function keyDown(event) {
   //按键盘的上键 
   //event.keycode这些数字都是有固定搭配的，不同数字对应不同的方向
   console.log("onepress")
-  if (event.keyCode == 38 || event.keyCode == 87) {
-    //87 对应w键
-    //如果蛇正在向下移动，那就不能向上移动了
-    if (inputsYVelocity == 1) return;
-    inputsYVelocity = -1;
-    inputsXVelocity = 0;
+  if (flag) {
+    if (event.keyCode == 38 || event.keyCode == 87) {
+      //87 对应w键
+      //如果蛇正在向下移动，那就不能向上移动了
+      if (inputsYVelocity == 1) return;
+      inputsYVelocity = -1;
+      inputsXVelocity = 0;
+    }
+  
+    ///按键盘的下键
+    else if (event.keyCode == 40 || event.keyCode == 83) {
+      // 83 对应s键
+      if (inputsYVelocity == -1) return;
+      inputsYVelocity = 1;
+      inputsXVelocity = 0;
+    }
+  
+    ///按键盘的左键
+    else if (event.keyCode == 37 || event.keyCode == 65) {
+      // 65 对应a键
+      if (inputsXVelocity == 1) return;
+      inputsYVelocity = 0;
+      inputsXVelocity = -1;
+    }
+  
+    ///按键盘的右键
+    else if (event.keyCode == 39 || event.keyCode == 68) {
+      //68 对应d键
+      if (inputsXVelocity == -1) return;
+      inputsYVelocity = 0;
+      inputsXVelocity = 1;
+    }
+    flag = false;
   }
-
-  ///按键盘的下键
-  if (event.keyCode == 40 || event.keyCode == 83) {
-    // 83 对应s键
-    if (inputsYVelocity == -1) return;
-    inputsYVelocity = 1;
-    inputsXVelocity = 0;
-  }
-
-  ///按键盘的左键
-  if (event.keyCode == 37 || event.keyCode == 65) {
-    // 65 对应a键
-    if (inputsXVelocity == 1) return;
-    inputsYVelocity = 0;
-    inputsXVelocity = -1;
-  }
-
-  ///按键盘的右键
-  if (event.keyCode == 39 || event.keyCode == 68) {
-    //68 对应d键
-    if (inputsXVelocity == -1) return;
-    inputsYVelocity = 0;
-    inputsXVelocity = 1;
-  }
+  
 }
 drawGame();
