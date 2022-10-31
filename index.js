@@ -1,6 +1,6 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
+let scores = document.getElementById("sc");
 //-----------------------------------------
 //--------------一些变量--------------------
 //-----------------------------------------
@@ -32,6 +32,7 @@ let tailLength = 2;
 
 //蛇的速度，随着吃越多的苹果，速度也会变得越快
 let speed = 7;
+let speedPermisson = true;
 
 //存放蛇身每一块格子的坐标，等下循环一个这个数组，就能把蛇更新起来
 const snakeParts = [];
@@ -47,9 +48,10 @@ let yVelocity = 0;
 
 //--------------关于苹果--------------
 //苹果的坐标,第几个格子
-let appleX = Math.round(Math.random()*tileCount);
-let appleY = Math.round(Math.random()*tileCount);
-let aplleColors = ["red", "gold", "purple"]
+let appleX = Math.round(Math.random()*(tileCount-1));
+let appleY = Math.round(Math.random()*(tileCount-1));
+let appleColors = ["red", "gold", "purple","blue","yellow","orange"];
+let appleColorIndex = 0;
 
 // -------------关于方向控制-------------------
 //用于解决方向键多次快速按下，产生反向行动，导致死亡的bug
@@ -93,10 +95,10 @@ function drawGame() {
   clearScreen();
 
   //查看是否吃到苹果
-  checkAppleCollision();
+  checkAppleCollision(appleColorIndex);
 
   //画一个苹果
-  drawApple();
+  drawApple(appleColorIndex);
 
   //画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
   drawSnake();
@@ -105,14 +107,11 @@ function drawGame() {
   drawScore();
 
   //随着吃到的苹果越多，速度也越快
-  if (score > 5) {
-    speed = 10;
+  if (score%10 == 0 && score != 0 && speedPermisson) {
+    speed = speed + 1;
+    speedPermisson = false;
   }
-  else if (score > 10) {
-    speed = 13;
-  }
-
-
+  console.log(speed)
   //用setTimeOut（）不停的循环游戏：每隔（1000/speed）时间就更新一下游戏页面，蛇就动起来了。1000是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
   setTimeout(drawGame, 1000 / speed);
@@ -123,9 +122,8 @@ function drawGame() {
 //要求：字体样式选择 白色 20px Verdana
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function drawScore() {
-  ctx.fillStyle = "rgb(255,255,255)";
-  ctx.font = "20px Verdana"; 
-  ctx.fillText("分数"+score,canvas.width - 80,20);  
+  console.log(scores.innerHTML)
+  scores.innerHTML = "分数:" + score;
 }
 
 //在画板上画一个黑色背景，大小就是整个画板的大小
@@ -138,13 +136,9 @@ function clearScreen() {
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
 //appleX和appleY坐标的值在之后的函数中会变的，这里不用担心
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
-function drawApple() {
-  if (((tailLength - 2) + 1) % 4 == 0) {
-    ctx.fillStyle = "gold";
-  }
-  else {
-    ctx.fillStyle = "rgb(255,0,0)"
-  }
+function drawApple(index) {
+  console.log(appleX+"apple"+appleY+"aa",appleColors[index])
+  ctx.fillStyle = appleColors[index];
   ctx.fillRect(appleX * tileSize, appleY * tileSize, tileSnakeSize, tileSnakeSize);
 }
 
@@ -172,7 +166,7 @@ function drawSnake() {
 
 //改变蛇头的位置
 function changeSnakePosition() {  
-    headX = headX + xVelocity;
+  headX = headX + xVelocity;
   headY = headY + yVelocity;
  
 }
@@ -180,28 +174,48 @@ function changeSnakePosition() {
 
 
 
-//查看蛇是否吃到了苹果，如果吃到苹果就随机生成新的苹果的appleX，appleY坐标
-//如果吃到了苹果，蛇身体长度要加一，分数要加一
+//查看蛇是否吃到了苹果，如果吃到苹果就随机生成新的苹果的appleX，appleY，appleColorIndex坐标
+//如果吃到了苹果，长度加一，允许增加速度，调用苹果检测函数
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
-function checkAppleCollision() {
+function checkAppleCollision(index) {
   if(headX === appleX && headY === appleY){
     tailLength++;
+    if (appleColors[appleColorIndex] != "purple") {
+      speedPermisson = true;
+    }
     //音乐播放
     gulpSound.play();
-    if (((tailLength - 2)) % 4 == 0) {
-      score = score + 2;
-    }
-    else {
-      score++;
-    }
+    checkAppleColor(index);
     //随机产生苹果坐标，及颜色编号
     appleX = Math.round(Math.random()*tileCount);
     appleY = Math.round(Math.random()*tileCount);
-    appleColor= Math.round(Math.random()*aplleColors.length);
-    console.log(appleX+"ddd"+appleY)
+    appleColorIndex = Math.round(Math.random()*(appleColors.length-1));
+    console.log(appleX+"ddd"+appleY+"sss"+appleColors.length)
   }
 }
 
+//检查吃了什么苹果以及对应效果"blue","yellow","white"
+function checkAppleColor(index) {
+  const appleColor = appleColors[index];
+  if (appleColor == "red") {   
+  }
+  else if (appleColor == "gold") {
+    score = score + 1;
+  }
+  else if (appleColor == "purple") {
+    tailLength = tailLength - 3;
+  }
+  else if (appleColor == "blue") {
+    speed=speed-0.5;
+  }
+  else if (appleColor == "yellow") {
+    speed=speed+0.5;
+  }
+  else if (appleColor == "orange") {
+    score = score - 2;
+  }
+  score++;
+}
 
 //查看游戏是否结束
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
@@ -224,11 +238,9 @@ function isGameOver() {
   snakeParts.forEach(function (snakepart, index) {
     if(snakepart.x === headX && snakepart.y === headY)
     {
-      if (index != 0) {
         console.log("die body")
         console.log("当前snake下标"+index)
         gameOver = true;
-      }
     }
   })
 
