@@ -48,14 +48,16 @@ let yVelocity = 0;
 
 //--------------关于苹果--------------
 //苹果的坐标,第几个格子
-let appleX = Math.round(Math.random()*(tileCount-1));
-let appleY = Math.round(Math.random()*(tileCount-1));
-let appleColors = ["red", "gold", "purple","blue","yellow","orange"];
-let appleColorIndex = 0;
+let appleX = [Math.round(Math.random()*(tileCount-1))];
+let appleY = [Math.round(Math.random()*(tileCount-1))];
+let appleColors = ["red", "gold", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)"];
+let appleColorIndex =[0]//苹果颜色下标
+let appleNumber = 2;//定义一次产生几个苹果
 
 // -------------关于方向控制-------------------
 //用于解决方向键多次快速按下，产生反向行动，导致死亡的bug
-let flag = false;
+let flag = false;//是否已经按下了一次按键
+let keyReverse = false;//是否按键反向
 
 //--------------记录分数和音效--------------
 //记录分数
@@ -81,13 +83,13 @@ function drawGame() {
   //更新蛇的位子：当你用按下上下左右的按键后，蛇就会动起来，因为每次蛇头的横坐标或者纵坐标都在+1，-1
   changeSnakePosition();
 
-  //
+  //更新flag信息，使按键有效
   flag = true;
 
   //如果游戏结束，停止循环
   let result = isGameOver();
   if (result) {
-    // gameOver.play();
+    gameOver.play();
     return;
   }
  
@@ -95,10 +97,10 @@ function drawGame() {
   clearScreen();
 
   //查看是否吃到苹果
-  checkAppleCollision(appleColorIndex);
+  checkAppleCollision();
 
   //画一个苹果
-  drawApple(appleColorIndex);
+  drawApple();
 
   //画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
   drawSnake();
@@ -114,7 +116,7 @@ function drawGame() {
   console.log(speed)
   //用setTimeOut（）不停的循环游戏：每隔（1000/speed）时间就更新一下游戏页面，蛇就动起来了。1000是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
-  setTimeout(drawGame, 1000 / speed);
+  setTimeout(drawGame, 1500 / speed);
 }
 
 
@@ -123,7 +125,7 @@ function drawGame() {
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function drawScore() {
   console.log(scores.innerHTML)
-  scores.innerHTML = "分数:" + score;
+  scores.innerHTML = "速度:"+speed+" 分数:" + score+" 长度:"+tailLength;
 }
 
 //在画板上画一个黑色背景，大小就是整个画板的大小
@@ -136,10 +138,12 @@ function clearScreen() {
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
 //appleX和appleY坐标的值在之后的函数中会变的，这里不用担心
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
-function drawApple(index) {
-  console.log(appleX+"apple"+appleY+"aa",appleColors[index])
-  ctx.fillStyle = appleColors[index];
-  ctx.fillRect(appleX * tileSize, appleY * tileSize, tileSnakeSize, tileSnakeSize);
+function drawApple() {
+  for (var i = 0; i < appleNumber; i++){
+    console.log(appleX+"apple"+appleY+"aa",appleColors[appleColorIndex])
+    ctx.fillStyle = appleColors[appleColorIndex[i]];
+    ctx.fillRect(appleX[i] * tileSize, appleY[i] * tileSize, tileSnakeSize, tileSnakeSize);
+  }
 }
 
 
@@ -172,28 +176,33 @@ function changeSnakePosition() {
 }
 
 
-
-
 //查看蛇是否吃到了苹果，如果吃到苹果就随机生成新的苹果的appleX，appleY，appleColorIndex坐标
 //如果吃到了苹果，长度加一，允许增加速度，调用苹果检测函数
 //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
-function checkAppleCollision(index) {
-  if(headX === appleX && headY === appleY){
-    tailLength++;
-    if (appleColors[appleColorIndex] != "purple") {
-      speedPermisson = true;
+function checkAppleCollision() {
+  for (var i = 0; i < appleNumber; i++) {
+    if (headX === appleX[i] && headY === appleY[i]) {
+      tailLength++;
+      if (appleColors[appleColorIndex[i]] != "orange") {
+        speedPermisson = true;
+      }
+      //音乐播放
+      gulpSound.play();
+      checkAppleColor(appleColorIndex[i]);
+      randomApple();
     }
-    //音乐播放
-    gulpSound.play();
-    checkAppleColor(index);
-    //随机产生苹果坐标，及颜色编号
-    appleX = Math.round(Math.random()*tileCount);
-    appleY = Math.round(Math.random()*tileCount);
-    appleColorIndex = Math.round(Math.random()*(appleColors.length-1));
-    console.log(appleX+"ddd"+appleY+"sss"+appleColors.length)
   }
 }
-
+//随机产生苹果appleX appleY appleColorIndex
+function randomApple() {
+    //随机产生苹果坐标，及颜色编号
+  for (var i = 0; i < appleNumber; i++) {
+    appleX[i] = Math.round(Math.random() * (tileCount - 1));
+    appleY[i] = Math.round(Math.random() * (tileCount - 1));
+    appleColorIndex[i] = Math.round(Math.random() * (appleColors.length - 1));
+    console.log(appleX[i] + "ddd" + appleY[i] + "sss" + appleColors.length)
+  }
+}
 //检查吃了什么苹果以及对应效果"blue","yellow","white"
 function checkAppleColor(index) {
   const appleColor = appleColors[index];
@@ -202,17 +211,33 @@ function checkAppleColor(index) {
   else if (appleColor == "gold") {
     score = score + 1;
   }
-  else if (appleColor == "purple") {
-    tailLength = tailLength - 3;
+  else if (appleColor == "orange") {//控制最低分数为0
+    if (score >=1) { 
+      score = score - 2;
+    } else {
+      score--;
+    }  
   }
-  else if (appleColor == "blue") {
-    speed=speed-0.5;
+  else if (appleColor == "purple") {//控制最短长度为0
+    if (tailLength >= 1) {
+      tailLength = tailLength - 2;
+    }    
   }
-  else if (appleColor == "yellow") {
-    speed=speed+0.5;
+  else if (appleColor == "blue") {//控制最低速度为7
+    if (speed >= 8) { 
+      speed=speed-1;
+    }     
   }
-  else if (appleColor == "orange") {
-    score = score - 2;
+  else if (appleColor == "rgb(0,255,127)") {
+    speed=speed+5;
+  }
+  else if (appleColor == "rgb(139,69,19)"){
+    if (keyReverse) {
+      keyReverse = false;
+    }
+    else {
+      keyReverse = true;
+    }
   }
   score++;
 }
@@ -248,7 +273,7 @@ function isGameOver() {
   //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
   if(gameOver === true){
     ctx.fillStyle = "rgb(255,255,255)";
-    ctx.font = "70px Verdana"; 
+    ctx.font = "70px 华文琥珀"; 
     ctx.fillText("游戏结束!",tileCount/4*tileSize,canvas.height/2);  
   }
 
@@ -263,39 +288,76 @@ function keyDown(event) {
   //event.keycode这些数字都是有固定搭配的，不同数字对应不同的方向
   console.log("onepress")
   if (flag) {
-    if (event.keyCode == 38 || event.keyCode == 87) {
-      //87 对应w键
-      //如果蛇正在向下移动，那就不能向上移动了
-      if (inputsYVelocity == 1) return;
-      inputsYVelocity = -1;
-      inputsXVelocity = 0;
+    if(!keyReverse){
+      if (event.keyCode == 38 || event.keyCode == 87) {
+        //87 对应w键
+        //如果蛇正在向下移动，那就不能向上移动了
+        if (inputsYVelocity == 1) return;
+        inputsYVelocity = -1;
+        inputsXVelocity = 0;
+      }
+    
+      ///按键盘的下键
+      else if (event.keyCode == 40 || event.keyCode == 83) {
+        // 83 对应s键
+        if (inputsYVelocity == -1) return;
+        inputsYVelocity = 1;
+        inputsXVelocity = 0;
+      }
+    
+      ///按键盘的左键
+      else if (event.keyCode == 37 || event.keyCode == 65) {
+        // 65 对应a键
+        if (inputsXVelocity == 1) return;
+        inputsYVelocity = 0;
+        inputsXVelocity = -1;
+      }
+    
+      ///按键盘的右键
+      else if (event.keyCode == 39 || event.keyCode == 68) {
+        //68 对应d键
+        if (inputsXVelocity == -1) return;
+        inputsYVelocity = 0;
+        inputsXVelocity = 1;
+      }
+      //使接下来的按键失去效果
+      flag = false;
     }
-  
-    ///按键盘的下键
-    else if (event.keyCode == 40 || event.keyCode == 83) {
-      // 83 对应s键
-      if (inputsYVelocity == -1) return;
-      inputsYVelocity = 1;
-      inputsXVelocity = 0;
+    else {//按键全部反向，左-》右，右-》左 等
+      if (event.keyCode == 38 || event.keyCode == 87) {
+        //87 对应w键
+        //如果蛇正在向下移动，那就不能向上移动了
+        if (inputsYVelocity == -1) return;
+        inputsYVelocity = 1;
+        inputsXVelocity = 0;
+      }
+    
+      ///按键盘的下键
+      else if (event.keyCode == 40 || event.keyCode == 83) {
+        // 83 对应s键
+        if (inputsYVelocity == 1) return;
+        inputsYVelocity = -1;
+        inputsXVelocity = 0;
+      }
+    
+      ///按键盘的左键
+      else if (event.keyCode == 37 || event.keyCode == 65) {
+        // 65 对应a键
+        if (inputsXVelocity == -1) return;
+        inputsYVelocity = 0;
+        inputsXVelocity = 1;
+
+      }
+      ///按键盘的右键
+      else if (event.keyCode == 39 || event.keyCode == 68) {
+        //68 对应d键
+        if (inputsXVelocity == 1) return;
+        inputsYVelocity = 0;
+        inputsXVelocity = -1;
+      }
+      //使接下来的按键失去效果
+      flag = false;
     }
-  
-    ///按键盘的左键
-    else if (event.keyCode == 37 || event.keyCode == 65) {
-      // 65 对应a键
-      if (inputsXVelocity == 1) return;
-      inputsYVelocity = 0;
-      inputsXVelocity = -1;
-    }
-  
-    ///按键盘的右键
-    else if (event.keyCode == 39 || event.keyCode == 68) {
-      //68 对应d键
-      if (inputsXVelocity == -1) return;
-      inputsYVelocity = 0;
-      inputsXVelocity = 1;
-    }
-    flag = false;
   }
-  
 }
 drawGame();

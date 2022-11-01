@@ -4,15 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Snakes</title>
     <style>
-        body {
+        #canvass {
             margin: 0px;
             padding: 0px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Chrome/Safari/Opera */
+            -khtml-user-select: none; /* Konqueror */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently not supported by any browser */
         }
         #sc{
             display:flex;
@@ -22,15 +28,43 @@
         canvas {
             box-shadow: black 20px 10px 50px;
         }
+        #games{
+            display: flex;
+            flex-direction: row;
+            
+        }
+        ul{
+            display: flex;
+            justify-content: left;
+            flex-direction: row;
+            list-style-type: none;
+            padding: 0;
+            align-items: left;
+        }
+        ul li{
+            margin-left: 10px;
+        }
     </style>
 </head>
 
 <body>
-    <h1>贪吃蛇</h1>
-    <div id="sc">
-        ::
+    <div id="canvass">
+        <div style="font-size: 32px;font-family: 华文彩云;">贪吃蛇(改)</div>
+        <div id="sc">
+           分数:0
+        </div>
+        <ul>
+            <li style="background-color:red">&nbsp;&nbsp;&nbsp;</li>分数+1
+            <li style="background-color:gold">&nbsp;&nbsp;&nbsp;</li>分数+2
+            <li style="background-color:orange">&nbsp;&nbsp;&nbsp;</li>分数-1
+            <li style="background-color:purple">&nbsp;&nbsp;&nbsp;</li>长度-1
+            <li style="background-color:blue">&nbsp;&nbsp;&nbsp;</li>速度-1
+            <li style="background-color:rgb(0,255,127)">&nbsp;&nbsp;&nbsp;</li>速度+2
+            <li style="background-color:rgb(139,69,19)">&nbsp;&nbsp;&nbsp;</li>方向反转
+        </ul>
+            <canvas id="game" width="600" height="600">  
     </div>
-    <canvas id="game" width="600" height="600">
+
     <script src="index.js"></script>
 </body>
 
