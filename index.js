@@ -50,7 +50,7 @@ let yVelocity = 0;
 //苹果的坐标,第几个格子
 let appleX = [Math.round(Math.random()*(tileCount-1))];
 let appleY = [Math.round(Math.random()*(tileCount-1))];
-let appleColors = ["red", "gold", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)"];
+let appleColors = ["red", "gold", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)","rgb(255, 4, 138)"];
 let appleColorIndex =[0]//苹果颜色下标
 let appleNumber = 2;//定义一次产生几个苹果
 
@@ -122,14 +122,12 @@ function drawGame() {
 
 //在画板的右上方更新分数。分数可以用变量score。x坐标=canvas.width - 80, y坐标=20
 //要求：字体样式选择 白色 20px Verdana
-//！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function drawScore() {
   console.log(scores.innerHTML)
   scores.innerHTML = "速度:"+speed+" 分数:" + score+" 长度:"+tailLength;
 }
-
 //在画板上画一个黑色背景，大小就是整个画板的大小
-//！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
+
 function clearScreen() {
   ctx.fillStyle = "rgb(0,0,0)"
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -137,7 +135,6 @@ function clearScreen() {
 
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
 //appleX和appleY坐标的值在之后的函数中会变的，这里不用担心
-//！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function drawApple() {
   for (var i = 0; i < appleNumber; i++){
     console.log(appleX+"apple"+appleY+"aa",appleColors[appleColorIndex])
@@ -152,7 +149,6 @@ function drawApple() {
 function drawSnake() {
 
   //1.先画蛇身体：你需要把数组snakeParts里的蛇身画出来，蛇身是绿色的，蛇身坐标怎么画可以参考第3步的画蛇头
-  //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
   console.log(snakeParts)
   snakeParts.forEach(function(SnakePart){
     ctx.fillStyle = "green";
@@ -178,7 +174,6 @@ function changeSnakePosition() {
 
 //查看蛇是否吃到了苹果，如果吃到苹果就随机生成新的苹果的appleX，appleY，appleColorIndex坐标
 //如果吃到了苹果，长度加一，允许增加速度，调用苹果检测函数
-//！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function checkAppleCollision() {
   for (var i = 0; i < appleNumber; i++) {
     if (headX === appleX[i] && headY === appleY[i]) {
@@ -231,6 +226,9 @@ function checkAppleColor(index) {
   else if (appleColor == "rgb(0,255,127)") {
     speed=speed+2;
   }
+  else if (appleColor == "rgb(255,4,138)") {
+    tailLength = tailLength + 1;
+  }
   else if (appleColor == "rgb(139,69,19)"){
     if (keyReverse) {
       keyReverse = false;
@@ -243,7 +241,6 @@ function checkAppleColor(index) {
 }
 
 //查看游戏是否结束
-//！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
 function isGameOver() {
   let gameOver = false;
 
@@ -253,13 +250,11 @@ function isGameOver() {
 
   //蛇头撞到墙，那就把gameover变量改成true
   //你需要查看蛇头是否撞到上下左右四面墙
-  //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
   if(headX < 0 || headY < 0 || headX > tileCount-1 || headY > tileCount-1){
     gameOver = true;
   }
 
   //查看蛇头是否撞到自己的身体，如果撞到，就把变量gameover变成true
-  //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
   snakeParts.forEach(function (snakepart, index) {
     if(snakepart.x === headX && snakepart.y === headY)
     {
@@ -270,7 +265,6 @@ function isGameOver() {
   })
 
   //如果游戏结束，显示 “游戏结束” 四个字
-  //！！！！！！！！！！！！《请根据上面的描述，在下方完成代码》！！！！！！！！！！！！
   if(gameOver === true){
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.font = "70px 华文琥珀"; 
