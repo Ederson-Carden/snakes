@@ -50,8 +50,8 @@ let yVelocity = 0;
 //苹果的坐标,第几个格子
 let appleX = [Math.round(Math.random()*(tileCount-1))];
 let appleY = [Math.round(Math.random()*(tileCount-1))];
-let appleColors = ["red", "gold", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)","rgb(255, 4, 138)"];
-let appleColorIndex =[0]//苹果颜色下标
+let appleColors = ["red", "yellow", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)","rgb(255,4,138)"];
+let appleColorIndex =[appleColors.length-1]//苹果颜色下标
 let appleNumber = 2;//定义一次产生几个苹果
 
 // -------------关于方向控制-------------------
@@ -95,22 +95,18 @@ function drawGame() {
  
   //黑色背景
   clearScreen();
-
-  //查看是否吃到苹果
-  checkAppleCollision();
-
   //画一个苹果
   drawApple();
 
   //画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
   drawSnake();
 
-  //画分数
-  drawScore();
+  //查看是否吃到苹果
+  checkAppleCollision();
 
   //随着吃到的苹果越多，速度也越快
   if (score%10 == 0 && score != 0 && speedPermisson) {
-    speed = speed + 1;
+    speed = speed + 2;
     speedPermisson = false;
   }
   console.log(speed)
@@ -120,14 +116,13 @@ function drawGame() {
 }
 
 
-//在画板的右上方更新分数。分数可以用变量score。x坐标=canvas.width - 80, y坐标=20
-//要求：字体样式选择 白色 20px Verdana
-function drawScore() {
+//更新infamation
+function drawInformation() {
   console.log(scores.innerHTML)
   scores.innerHTML = "速度:"+speed+" 分数:" + score+" 长度:"+tailLength;
 }
-//在画板上画一个黑色背景，大小就是整个画板的大小
 
+//在画板上画一个黑色背景，大小就是整个画板的大小
 function clearScreen() {
   ctx.fillStyle = "rgb(0,0,0)"
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -154,12 +149,13 @@ function drawSnake() {
     ctx.fillStyle = "green";
     ctx.fillRect(SnakePart.x * tileSize, SnakePart.y * tileSize, tileSnakeSize, tileSnakeSize);
   })
-  //2.把吃到的苹果加到蛇的身体上（以下代码不用改动和添加）
-    snakeParts.push(new SnakePart(headX, headY)); //把新的蛇方块加到snakeParts数组的最后面
+
+  //2.把吃到的苹果加到蛇的身体上
+  snakeParts.push(new SnakePart(headX, headY)); //把新的蛇方块加到snakeParts数组的最后面
     while (snakeParts.length > tailLength) {
       snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
     }
-  //3.画蛇头（以下代码不用改动和添加）
+  //3.画蛇头
   ctx.fillStyle = "rgb(178,34,34)";
   ctx.fillRect(headX * tileSize, headY * tileSize, tileSnakeSize, tileSnakeSize);
 }
@@ -185,6 +181,8 @@ function checkAppleCollision() {
       gulpSound.play();
       checkAppleColor(appleColorIndex[i]);
       randomApple();
+      //画分数
+      drawInformation();
     }
   }
 }
@@ -203,7 +201,7 @@ function checkAppleColor(index) {
   const appleColor = appleColors[index];
   if (appleColor == "red") {   
   }
-  else if (appleColor == "gold") {
+  else if (appleColor == "yellow") {
     score = score + 1;
   }
   else if (appleColor == "orange") {//控制最低分数为0
