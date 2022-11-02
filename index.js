@@ -164,7 +164,7 @@ function drawSnake() {
       snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
     }
   //3.画蛇头（以下代码不用改动和添加）
-  ctx.fillStyle = "blue";
+  ctx.fillStyle = "rgb(178,34,34)";
   ctx.fillRect(headX * tileSize, headY * tileSize, tileSnakeSize, tileSnakeSize);
 }
 
@@ -229,7 +229,7 @@ function checkAppleColor(index) {
     }     
   }
   else if (appleColor == "rgb(0,255,127)") {
-    speed=speed+5;
+    speed=speed+2;
   }
   else if (appleColor == "rgb(139,69,19)"){
     if (keyReverse) {
