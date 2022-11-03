@@ -16,8 +16,8 @@ let tileSnakeSize = tileSize - 2;
 
 //--------------关于蛇--------------
 //蛇头的坐标
-let headX = tileCount/2;
-let headY = tileCount/2;
+let headX = tileCount / 2;
+let headY = tileCount / 2;
 
 //构建一个蛇身
 class SnakePart {
@@ -48,10 +48,10 @@ let yVelocity = 0;
 
 //--------------关于苹果--------------
 //苹果的坐标,第几个格子
-let appleX = [Math.round(Math.random()*(tileCount-1))];
-let appleY = [Math.round(Math.random()*(tileCount-1))];
-let appleColors = ["red", "yellow", "purple","blue","orange","rgb(0,255,127)","rgb(139,69,19)","rgb(255,4,138)"];
-let appleColorIndex =[appleColors.length-1]//苹果颜色下标
+let appleX = [Math.round(Math.random() * (tileCount - 1))];
+let appleY = [Math.round(Math.random() * (tileCount - 1))];
+let appleColors = ["red", "yellow", "purple", "blue", "rgb(2,200,255)", "rgb(0,255,127)", "rgb(139,69,19)", "rgb(255,4,138)"];
+let appleColorIndex = [0]//苹果颜色下标
 let appleNumber = 2;//定义一次产生几个苹果
 
 // -------------关于方向控制-------------------
@@ -92,7 +92,7 @@ function drawGame() {
     gameOver.play();
     return;
   }
- 
+
   //黑色背景
   clearScreen();
   //画一个苹果
@@ -105,7 +105,7 @@ function drawGame() {
   checkAppleCollision();
 
   //随着吃到的苹果越多，速度也越快
-  if (score%10 == 0 && score != 0 && speedPermisson) {
+  if (score % 10 == 0 && score != 0 && speedPermisson) {
     speed = speed + 2;
     speedPermisson = false;
   }
@@ -119,7 +119,7 @@ function drawGame() {
 //更新infamation
 function drawInformation() {
   console.log(scores.innerHTML)
-  scores.innerHTML = "速度:"+speed+" 分数:" + score+" 长度:"+tailLength;
+  scores.innerHTML = "速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
 }
 
 //在画板上画一个黑色背景，大小就是整个画板的大小
@@ -131,8 +131,8 @@ function clearScreen() {
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
 //appleX和appleY坐标的值在之后的函数中会变的，这里不用担心
 function drawApple() {
-  for (var i = 0; i < appleNumber; i++){
-    console.log(appleX+"apple"+appleY+"aa",appleColors[appleColorIndex])
+  for (var i = 0; i < appleNumber; i++) {
+    console.log(appleX + "apple" + appleY + "aa", appleColors[appleColorIndex])
     ctx.fillStyle = appleColors[appleColorIndex[i]];
     ctx.fillRect(appleX[i] * tileSize, appleY[i] * tileSize, tileSnakeSize, tileSnakeSize);
   }
@@ -145,26 +145,26 @@ function drawSnake() {
 
   //1.先画蛇身体：你需要把数组snakeParts里的蛇身画出来，蛇身是绿色的，蛇身坐标怎么画可以参考第3步的画蛇头
   console.log(snakeParts)
-  snakeParts.forEach(function(SnakePart){
-    ctx.fillStyle = "green";
+  snakeParts.forEach(function (SnakePart) {
+    ctx.fillStyle = "rgb(252,174,108)";
     ctx.fillRect(SnakePart.x * tileSize, SnakePart.y * tileSize, tileSnakeSize, tileSnakeSize);
   })
 
   //2.把吃到的苹果加到蛇的身体上
   snakeParts.push(new SnakePart(headX, headY)); //把新的蛇方块加到snakeParts数组的最后面
-    while (snakeParts.length > tailLength) {
-      snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
-    }
+  while (snakeParts.length > tailLength) {
+    snakeParts.shift(); // 如果超过了尾巴的长度，那就在snakeParts头去掉一个
+  }
   //3.画蛇头
-  ctx.fillStyle = "rgb(178,34,34)";
+  ctx.fillStyle = "rgb(116,122,179)";
   ctx.fillRect(headX * tileSize, headY * tileSize, tileSnakeSize, tileSnakeSize);
 }
 
 //改变蛇头的位置
-function changeSnakePosition() {  
+function changeSnakePosition() {
   headX = headX + xVelocity;
   headY = headY + yVelocity;
- 
+
 }
 
 
@@ -188,7 +188,7 @@ function checkAppleCollision() {
 }
 //随机产生苹果appleX appleY appleColorIndex
 function randomApple() {
-    //随机产生苹果坐标，及颜色编号
+  //随机产生苹果坐标，及颜色编号
   for (var i = 0; i < appleNumber; i++) {
     appleX[i] = Math.round(Math.random() * (tileCount - 1));
     appleY[i] = Math.round(Math.random() * (tileCount - 1));
@@ -199,35 +199,35 @@ function randomApple() {
 //检查吃了什么苹果以及对应效果"blue","yellow","white"
 function checkAppleColor(index) {
   const appleColor = appleColors[index];
-  if (appleColor == "red") {   
+  if (appleColor == "red") {
   }
   else if (appleColor == "yellow") {
     score = score + 1;
   }
-  else if (appleColor == "orange") {//控制最低分数为0
-    if (score >=1) { 
+  else if (appleColor == "rgb(2,200,255)") {//控制最低分数为0
+    if (score >= 1) {
       score = score - 2;
     } else {
       score--;
-    }  
+    }
   }
   else if (appleColor == "purple") {//控制最短长度为0
     if (tailLength >= 1) {
       tailLength = tailLength - 2;
-    }    
+    }
   }
   else if (appleColor == "blue") {//控制最低速度为7
-    if (speed >= 8) { 
-      speed=speed-1;
-    }     
+    if (speed >= 8) {
+      speed = speed - 1;
+    }
   }
   else if (appleColor == "rgb(0,255,127)") {
-    speed=speed+2;
+    speed = speed + 2;
   }
   else if (appleColor == "rgb(255,4,138)") {
     tailLength = tailLength + 1;
   }
-  else if (appleColor == "rgb(139,69,19)"){
+  else if (appleColor == "rgb(139,69,19)") {
     if (keyReverse) {
       keyReverse = false;
     }
@@ -248,25 +248,24 @@ function isGameOver() {
 
   //蛇头撞到墙，那就把gameover变量改成true
   //你需要查看蛇头是否撞到上下左右四面墙
-  if(headX < 0 || headY < 0 || headX > tileCount-1 || headY > tileCount-1){
+  if (headX < 0 || headY < 0 || headX > tileCount - 1 || headY > tileCount - 1) {
     gameOver = true;
   }
 
   //查看蛇头是否撞到自己的身体，如果撞到，就把变量gameover变成true
   snakeParts.forEach(function (snakepart, index) {
-    if(snakepart.x === headX && snakepart.y === headY)
-    {
-        console.log("die body")
-        console.log("当前snake下标"+index)
-        gameOver = true;
+    if (snakepart.x === headX && snakepart.y === headY) {
+      console.log("die body")
+      console.log("当前snake下标" + index)
+      gameOver = true;
     }
   })
 
   //如果游戏结束，显示 “游戏结束” 四个字
-  if(gameOver === true){
+  if (gameOver === true) {
     ctx.fillStyle = "rgb(255,255,255)";
-    ctx.font = "70px 华文琥珀"; 
-    ctx.fillText("游戏结束!",tileCount/4*tileSize,canvas.height/2);  
+    ctx.font = "70px 华文琥珀";
+    ctx.fillText("游戏结束!", tileCount / 4 * tileSize, canvas.height / 2);
   }
 
   return gameOver;
@@ -280,7 +279,7 @@ function keyDown(event) {
   //event.keycode这些数字都是有固定搭配的，不同数字对应不同的方向
   console.log("onepress")
   if (flag) {
-    if(!keyReverse){
+    if (!keyReverse) {
       if (event.keyCode == 38 || event.keyCode == 87) {
         //87 对应w键
         //如果蛇正在向下移动，那就不能向上移动了
@@ -288,7 +287,7 @@ function keyDown(event) {
         inputsYVelocity = -1;
         inputsXVelocity = 0;
       }
-    
+
       ///按键盘的下键
       else if (event.keyCode == 40 || event.keyCode == 83) {
         // 83 对应s键
@@ -296,7 +295,7 @@ function keyDown(event) {
         inputsYVelocity = 1;
         inputsXVelocity = 0;
       }
-    
+
       ///按键盘的左键
       else if (event.keyCode == 37 || event.keyCode == 65) {
         // 65 对应a键
@@ -304,7 +303,7 @@ function keyDown(event) {
         inputsYVelocity = 0;
         inputsXVelocity = -1;
       }
-    
+
       ///按键盘的右键
       else if (event.keyCode == 39 || event.keyCode == 68) {
         //68 对应d键
@@ -323,7 +322,7 @@ function keyDown(event) {
         inputsYVelocity = 1;
         inputsXVelocity = 0;
       }
-    
+
       ///按键盘的下键
       else if (event.keyCode == 40 || event.keyCode == 83) {
         // 83 对应s键
@@ -331,7 +330,7 @@ function keyDown(event) {
         inputsYVelocity = -1;
         inputsXVelocity = 0;
       }
-    
+
       ///按键盘的左键
       else if (event.keyCode == 37 || event.keyCode == 65) {
         // 65 对应a键
@@ -352,4 +351,20 @@ function keyDown(event) {
     }
   }
 }
+
+//--------------遮罩层(规则弹窗)--------------
+function ShowDiv(show_div, bg_div) {
+  document.getElementById(show_div).style.display = 'block';
+  document.getElementById(bg_div).style.display = 'block';
+  var bgdiv = document.getElementById(bg_div);
+  bgdiv.style.width = document.body.scrollWidth;
+  bgdiv.style.height = document.body.height;;
+  // $("#" + bg_div).height($(document).height());
+};
+//关闭弹出层
+function CloseDiv(show_div, bg_div) {
+  document.getElementById(show_div).style.display = 'none';
+  document.getElementById(bg_div).style.display = 'none';
+};
+
 drawGame();
