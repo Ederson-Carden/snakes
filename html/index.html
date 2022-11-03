@@ -21,14 +21,20 @@
             <li style="background-color:rgb(2,200,255)">&nbsp;&nbsp;&nbsp;</li>分数-1
             <li style="background-color:purple">&nbsp;&nbsp;&nbsp;</li>长度-1
             <li style="background-color:blue">&nbsp;&nbsp;&nbsp;</li>速度-1
-            <li style="background-color:rgb(0,255,127)">&nbsp;&nbsp;&nbsp;</li>速度+2
+            <li style="background-color:rgb(0,255,127)">&nbsp;&nbsp;&nbsp;</li>速度+1
             <li style="background-color:rgb(139,69,19)">&nbsp;&nbsp;&nbsp;</li>方向反转
             <li style="background-color:rgb(255,4,138)">&nbsp;&nbsp;&nbsp;</li>长度+2
         </ul>
         <div id="rules">
             <canvas id="game" width="600" height="600"></canvas>
             <div>
+            <div style="display: flex;flex-direction: column;">
                 <button class="rules_button" onclick="ShowDiv('MyDiv','fade')">规则</button>
+                <button class="rules_button" style="background-color: rgb(2, 118, 141);" onclick="">闯关模式</button>
+                <button class="rules_button" style="background-color: rgb(7, 136, 162);" onclick="">暂停</button>
+                <button class="rules_button" style="background-color: rgb(7, 164, 196);" onclick="rePlayGame()">重开</button>
+            </div>
+
                 <!--弹出层时背景层DIV-->
                 <div id="fade" class="black_overlay">
                 </div>
@@ -43,15 +49,21 @@
                         <li style="background-color:rgb(2,200,255)">&nbsp;&nbsp;&nbsp;</li>分数-1
                         <li style="background-color:purple">&nbsp;&nbsp;&nbsp;</li>长度-1
                         <li style="background-color:blue">&nbsp;&nbsp;&nbsp;</li>速度-1
-                        <li style="background-color:rgb(0,255,127)">&nbsp;&nbsp;&nbsp;</li>速度+2
+                        <li style="background-color:rgb(0,255,127)">&nbsp;&nbsp;&nbsp;</li>速度+1
                         <li style="background-color:rgb(139,69,19)">&nbsp;&nbsp;&nbsp;</li>方向反转
                         <li style="background-color:rgb(255,4,138)">&nbsp;&nbsp;&nbsp;</li>长度+2
                     </ul>
                     <div style="padding-left: 30px;">
                         ↑↓←→ 或 wasd 来控制蛇的方向控制<br>
                         吃到每个苹果获得不同效果(具体如上)<br>
-                        测试测试<br>
-                        测试
+                        默认只要吃到苹果分数+1,长度+1<br>
+                        速度每5的倍数速度+2<br><br>
+                        当速度达到16时,会产生"1"果实<br>
+                        当分数达到17时,会产生"0"果实<br>
+                        当长度达到18时,会产生"2"果实<br>
+                        当分数达到26、速度达到22、长度达到24时,会产生"4"果实<br>
+                        集齐"1""0""2""4"即可通关<br>
+                        <B>注:记得开启声音！！！胜利了有惊喜！！！</B>
                     </div>
                 </div>
             </div>

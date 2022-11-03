@@ -35,7 +35,7 @@ let speed = 7;
 let speedPermisson = true;
 
 //存放蛇身每一块格子的坐标，等下循环一个这个数组，就能把蛇更新起来
-const snakeParts = [];
+let snakeParts = [];
 
 //改变蛇行动方向
 let inputsXVelocity = 0;
@@ -59,6 +59,15 @@ let appleNumber = 2;//定义一次产生几个苹果
 let flag = false;//是否已经按下了一次按键
 let keyReverse = false;//是否按键反向
 
+//--------------关于胜利--------------
+let winElementX = Math.round(Math.random() * (tileCount - 1));
+let winElementY = Math.round(Math.random() * (tileCount - 1));
+let winElementIndex = 0;//该生成的特殊果实下标
+let winElement = ["1", "0", "2", "4"];//元素
+let gatherWinElement = [false, false, false, false];//是否已经收集了该元素
+let gameOverText = "游戏结束！"
+let checkWinGameFlag = false;
+
 //--------------记录分数和音效--------------
 //记录分数
 let score = 0;
@@ -66,6 +75,9 @@ let score = 0;
 //音效
 const gulpSound = new Audio("/sounds/gulp.mp3");
 const gameOver = new Audio("/sounds/game_over.wav")
+const eatJewel = new Audio("/sounds/eatJewel.mp3");
+const winGame = new Audio("/sounds/winGame.mp3")
+const backmusic = new Audio("/sounds/backmusic.mp3")
 
 
 //-----------------------------------------
@@ -89,14 +101,25 @@ function drawGame() {
   //如果游戏结束，停止循环
   let result = isGameOver();
   if (result) {
-    gameOver.play();
+    if (checkWinGameFlag) {
+      backmusic.pause();
+      winGame.play();
+    }
+    else {
+      gameOver.play();
+    }
+    console.log(checkWinGameFlag)
     return;
   }
 
   //黑色背景
   clearScreen();
+
   //画一个苹果
   drawApple();
+
+  //画特殊果实
+  drawWinElements();
 
   //画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
   drawSnake();
@@ -104,22 +127,18 @@ function drawGame() {
   //查看是否吃到苹果
   checkAppleCollision();
 
+  //查看是否吃到特殊果实
+  checkWinElementCollision();
+
   //随着吃到的苹果越多，速度也越快
-  if (score % 10 == 0 && score != 0 && speedPermisson) {
+  if (score % 5 == 0 && score != 0 && speedPermisson) {
     speed = speed + 2;
     speedPermisson = false;
   }
   console.log(speed)
-  //用setTimeOut（）不停的循环游戏：每隔（1000/speed）时间就更新一下游戏页面，蛇就动起来了。1000是毫秒=1秒钟
+  //用setTimeOut（）不停的循环游戏：每隔（1500/speed）时间就更新一下游戏页面，蛇就动起来了。1500是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
   setTimeout(drawGame, 1500 / speed);
-}
-
-
-//更新infamation
-function drawInformation() {
-  console.log(scores.innerHTML)
-  scores.innerHTML = "速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
 }
 
 //在画板上画一个黑色背景，大小就是整个画板的大小
@@ -128,21 +147,54 @@ function clearScreen() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+//更新infamation
+function drawInformation() {
+  console.log(scores.innerHTML)
+  scores.innerHTML = "速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
+}
+
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
 //appleX和appleY坐标的值在之后的函数中会变的，这里不用担心
 function drawApple() {
   for (var i = 0; i < appleNumber; i++) {
-    console.log(appleX + "apple" + appleY + "aa", appleColors[appleColorIndex])
+    console.log(appleX + "apple" + appleY + "aa" + appleColors[appleColorIndex])
     ctx.fillStyle = appleColors[appleColorIndex[i]];
     ctx.fillRect(appleX[i] * tileSize, appleY[i] * tileSize, tileSnakeSize, tileSnakeSize);
   }
 }
+//画特殊果实的条件
+function drawWinElements() {
+  if (score >= 17 && gatherWinElement[0] == false) {
+    winElementIndex = 0;
+    drawWinElement(winElementIndex);
+  }
+  else if (speed >= 16 && gatherWinElement[1] == false) {
+    winElementIndex = 1;
+    drawWinElement(winElementIndex);
+  }
+  else if (tailLength >= 18 && gatherWinElement[2] == false) {
+    winElementIndex = 2;
+    drawWinElement(winElementIndex);
+  }
+  else if (score >= 26 && speed >= 22 && tailLength >= 24 && gatherWinElement[3] == false) {
+    winElementIndex = 3;
+    drawWinElement(winElementIndex);
+  }
+  console.log(gatherWinElement)
+}
 
-
+//画游戏胜利元素(特殊果实)
+function drawWinElement(e) {
+  ctx.fillStyle = "white";
+  ctx.fillRect(winElementX * tileSize, winElementY * tileSize, tileSnakeSize, tileSnakeSize);
+  ctx.fillStyle = "black";
+  ctx.font = "15px Arial";
+  ctx.fillText(winElement[e], winElementX * tileSize + tileSize / 4, winElementY * tileSize + 3 * tileSize / 4);
+  console.log(winElementX + "winElementX" + winElementY + "winElementY")
+}
 
 //把蛇画出来：蛇身体+蛇头
 function drawSnake() {
-
   //1.先画蛇身体：你需要把数组snakeParts里的蛇身画出来，蛇身是绿色的，蛇身坐标怎么画可以参考第3步的画蛇头
   console.log(snakeParts)
   snakeParts.forEach(function (SnakePart) {
@@ -186,6 +238,21 @@ function checkAppleCollision() {
     }
   }
 }
+
+//查看蛇是否吃到了特殊果实，如果吃到特殊果实就随机生成新的特殊果实的winElementX，winElementY,将该元素已收集
+function checkWinElementCollision() {
+  if (headX === winElementX && headY === winElementY) {
+    gatherWinElement[winElementIndex] = true;
+    // //音乐播放
+    eatJewel.play();
+    //判断游戏是否结束
+    checkWinGame();
+    // checkAppleColor(appleColorIndex[i]);
+    winElementX = Math.round(Math.random() * (tileCount - 1));
+    winElementY = Math.round(Math.random() * (tileCount - 1));
+  }
+}
+
 //随机产生苹果appleX appleY appleColorIndex
 function randomApple() {
   //随机产生苹果坐标，及颜色编号
@@ -196,6 +263,7 @@ function randomApple() {
     console.log(appleX[i] + "ddd" + appleY[i] + "sss" + appleColors.length)
   }
 }
+
 //检查吃了什么苹果以及对应效果"blue","yellow","white"
 function checkAppleColor(index) {
   const appleColor = appleColors[index];
@@ -222,7 +290,7 @@ function checkAppleColor(index) {
     }
   }
   else if (appleColor == "rgb(0,255,127)") {
-    speed = speed + 2;
+    speed = speed + 1;
   }
   else if (appleColor == "rgb(255,4,138)") {
     tailLength = tailLength + 1;
@@ -238,36 +306,50 @@ function checkAppleColor(index) {
   score++;
 }
 
+//检查游戏是否胜利
+function checkWinGame() {
+  let winss = gatherWinElement.includes(false);
+  if (winss) {
+    gameOverText = "游戏结束！";
+    checkWinGameFlag = false;
+  }
+  else {
+    gameOverText = "获得胜利！";
+    checkWinGameFlag = true;
+  }
+}
+
 //查看游戏是否结束
 function isGameOver() {
   let gameOver = false;
-
   if (yVelocity === 0 && xVelocity === 0) {
     return false;
   }
-
-  //蛇头撞到墙，那就把gameover变量改成true
-  //你需要查看蛇头是否撞到上下左右四面墙
-  if (headX < 0 || headY < 0 || headX > tileCount - 1 || headY > tileCount - 1) {
+  if (checkWinGameFlag) {
     gameOver = true;
-  }
-
-  //查看蛇头是否撞到自己的身体，如果撞到，就把变量gameover变成true
-  snakeParts.forEach(function (snakepart, index) {
-    if (snakepart.x === headX && snakepart.y === headY) {
-      console.log("die body")
-      console.log("当前snake下标" + index)
+  } else {
+    //蛇头撞到墙，那就把gameover变量改成true
+    //你需要查看蛇头是否撞到上下左右四面墙
+    if (headX < 0 || headY < 0 || headX > tileCount - 1 || headY > tileCount - 1) {
       gameOver = true;
     }
-  })
+
+    //查看蛇头是否撞到自己的身体，如果撞到，就把变量gameover变成true
+    snakeParts.forEach(function (snakepart, index) {
+      if (snakepart.x === headX && snakepart.y === headY) {
+        console.log("die body")
+        console.log("当前snake下标" + index)
+        gameOver = true;
+      }
+    })
+  }
 
   //如果游戏结束，显示 “游戏结束” 四个字
   if (gameOver === true) {
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.font = "70px 华文琥珀";
-    ctx.fillText("游戏结束!", tileCount / 4 * tileSize, canvas.height / 2);
+    ctx.fillText(gameOverText, tileCount / 4 * tileSize, canvas.height / 2);
   }
-
   return gameOver;
 }
 
@@ -359,12 +441,12 @@ function ShowDiv(show_div, bg_div) {
   var bgdiv = document.getElementById(bg_div);
   bgdiv.style.width = document.body.scrollWidth;
   bgdiv.style.height = document.body.height;;
-  // $("#" + bg_div).height($(document).height());
 };
 //关闭弹出层
 function CloseDiv(show_div, bg_div) {
   document.getElementById(show_div).style.display = 'none';
   document.getElementById(bg_div).style.display = 'none';
-};
+}
 
-drawGame();
+backmusic.play();
+  drawGame();
