@@ -1,6 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 let scores = document.getElementById("sc");
+let stopGameInnertxt = document.getElementById("stopgame");
+let modeInnertxt = document.getElementById("mode");
 //-----------------------------------------
 //--------------一些变量--------------------
 //-----------------------------------------
@@ -68,6 +70,13 @@ let gatherWinElement = [false, false, false, false];//是否已经收集了该�
 let gameOverText = "游戏结束！"
 let checkWinGameFlag = false;
 
+//--------------关于暂停--------------
+let stopGameFlag = false;
+
+//--------------关于模式选择--------------
+//模式切换，闯关与无尽模式,默认闯关模式
+let modeFlag = true;
+
 //--------------记录分数和音效--------------
 //记录分数
 let score = 0;
@@ -92,6 +101,10 @@ function drawGame() {
   console.log("headX", headX)
   console.log("headY", headY)
 
+  if (stopGameFlag == true) {
+    console.log("当前已暂停！！！！" + stopGameFlag)
+    return;
+  }
   //更新蛇的位子：当你用按下上下左右的按键后，蛇就会动起来，因为每次蛇头的横坐标或者纵坐标都在+1，-1
   changeSnakePosition();
 
@@ -118,18 +131,21 @@ function drawGame() {
   //画一个苹果
   drawApple();
 
-  //画特殊果实
-  drawWinElements();
-
   //画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
   drawSnake();
 
   //查看是否吃到苹果
   checkAppleCollision();
 
-  //查看是否吃到特殊果实
-  checkWinElementCollision();
+  //模式切换，闯关与无尽模式
+  if (modeFlag) {
+    console.log("闯关模式！！！！！！！！！！！！！")
+    //画特殊果实
+    drawWinElements();
 
+    //查看是否吃到特殊果实
+    checkWinElementCollision();
+  }
   //随着吃到的苹果越多，速度也越快
   if (score % 5 == 0 && score != 0 && speedPermisson) {
     speed = speed + 2;
@@ -357,6 +373,7 @@ function isGameOver() {
 //给键盘控制加一个监听器，当按下键盘上的上下左右的时候，会改变蛇的走位
 document.body.addEventListener("keydown", keyDown);
 function keyDown(event) {
+  event.preventDefault(); //屏蔽默认事件
   //按键盘的上键 
   //event.keycode这些数字都是有固定搭配的，不同数字对应不同的方向
   console.log("onepress")
@@ -448,5 +465,93 @@ function CloseDiv(show_div, bg_div) {
   document.getElementById(bg_div).style.display = 'none';
 }
 
-backmusic.play();
+
+//------------------重玩(初始化)----------------
+function rePlayGame() {
+  //--------------关于蛇--------------
+  //蛇头的坐标
+  headX = tileCount / 2;
+  headY = tileCount / 2;
+
+  //蛇身长度：初始长度为2
+  tailLength = 2;
+
+  //蛇的速度，随着吃越多的苹果，速度也会变得越快
+  speed = 7;
+  speedPermisson = true;
+
+  //存放蛇身每一块格子的坐标，等下循环一个这个数组，就能把蛇更新起来
+  snakeParts = [];
+
+  //改变蛇行动方向
+  inputsXVelocity = 0;
+  inputsYVelocity = 0;
+
+  //蛇的行动方向
+  xVelocity = 0;
+  yVelocity = 0;
+
+  //--------------关于苹果--------------
+  //苹果的坐标,第几个格子
+  appleX = [Math.round(Math.random() * (tileCount - 1))];
+  appleY = [Math.round(Math.random() * (tileCount - 1))];
+  appleColorIndex = [0]//苹果颜色下标
+
+  // -------------关于方向控制-------------------
+  //用于解决方向键多次快速按下，产生反向行动，导致死亡的bug
+  flag = false;//是否已经按下了一次按键
+  keyReverse = false;//是否按键反向
+
+  //--------------关于胜利--------------
+  winElementX = Math.round(Math.random() * (tileCount - 1));
+  winElementY = Math.round(Math.random() * (tileCount - 1));
+  winElementIndex = 0;//该生成的特殊果实下标
+  winElement = ["1", "0", "2", "4"];//元素
+  gatherWinElement = [false, false, false, false];//是否已经收集了该元素
+  gameOverText = "游戏结束！"
+  checkWinGameFlag = false;
+
+  //--------------记录分数和音效--------------
+  //记录分数
+  score = 0;
+
+  //--------------暂停按钮--------------
+  stopGameFlag = false;
+  stopGameInnertxt.innerHTML = "暂停";
+
+  drawInformation();
+  backmusic.play();
   drawGame();
+}
+
+//暂停
+function stopGame() {
+  if (stopGameFlag == false) {
+    stopGameFlag = true;
+    stopGameInnertxt.innerHTML = "开始";
+  }
+  else if (stopGameFlag == true) {
+    stopGameFlag = false;
+    stopGameInnertxt.innerHTML = "暂停";
+    drawGame();
+  }
+}
+
+//模式切换，闯关与无尽模式,默认闯关模式
+function changeMode() {
+  if (stopGameFlag) {
+    if (modeFlag){
+      modeFlag = false;
+      modeInnertxt.innerHTML = "无尽模式";
+    }
+    else if (modeFlag == false) {
+      modeFlag = true;
+      modeInnertxt.innerHTML = "闯关模式";
+    }
+  }
+}
+//黑色背景
+clearScreen();
+
+//画蛇，并且把刚吃到的苹果加到蛇的身体上，并把蛇画出来
+drawSnake();
