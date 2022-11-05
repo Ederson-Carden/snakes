@@ -34,7 +34,6 @@ let tailLength = 2;
 
 //蛇的速度，随着吃越多的苹果，速度也会变得越快
 let speed = 7;
-let speedPermisson = true;
 
 //存放蛇身每一块格子的坐标，等下循环一个这个数组，就能把蛇更新起来
 let snakeParts = [];
@@ -71,22 +70,25 @@ let gameOverText = "游戏结束！"
 let checkWinGameFlag = false;
 
 //--------------关于暂停--------------
-let stopGameFlag = false;
-
+let stopGameFlag = false;//停止游戏
+let gameovers = true;
 //--------------关于模式选择--------------
 //模式切换，闯关与无尽模式,默认闯关模式
 let modeFlag = true;
+let roundS = 1;
 
 //--------------记录分数和音效--------------
 //记录分数
 let score = 0;
+//记录增加速度的回合数
+let speedPermisson = 1;
 
 //音效
-const gulpSound = new Audio("/sounds/gulp.mp3");
-const gameOver = new Audio("/sounds/game_over.wav")
-const eatJewel = new Audio("/sounds/eatJewel.mp3");
-const winGame = new Audio("/sounds/winGame.mp3")
-const backmusic = new Audio("/sounds/backmusic.mp3")
+const gulpSound = new Audio("../sounds/gulp.mp3");
+const gameOver = new Audio("../sounds/game_over.wav")
+const eatJewel = new Audio("../sounds/eatJewel.mp3");
+const winGame = new Audio("../sounds/winGame.mp3")
+const backmusic = new Audio("../sounds/backmusic.mp3")
 
 
 //-----------------------------------------
@@ -100,7 +102,6 @@ function drawGame() {
   yVelocity = inputsYVelocity;
   console.log("headX", headX)
   console.log("headY", headY)
-
   if (stopGameFlag == true) {
     console.log("当前已暂停！！！！" + stopGameFlag)
     return;
@@ -115,12 +116,15 @@ function drawGame() {
   let result = isGameOver();
   if (result) {
     if (checkWinGameFlag) {
-      backmusic.pause();
-      winGame.play();
+      if (roundS == 2) {
+        backmusic.pause();
+        winGame.play();
+      }
     }
     else {
       gameOver.play();
     }
+    gameovers = true;
     console.log(checkWinGameFlag)
     return;
   }
@@ -139,19 +143,20 @@ function drawGame() {
 
   //模式切换，闯关与无尽模式
   if (modeFlag) {
-    console.log("闯关模式！！！！！！！！！！！！！")
+    console.log("闯关模式！！！！当前第"+roundS)
     //画特殊果实
     drawWinElements();
 
     //查看是否吃到特殊果实
     checkWinElementCollision();
   }
+
   //随着吃到的苹果越多，速度也越快
-  if (score % 5 == 0 && score != 0 && speedPermisson) {
-    speed = speed + 2;
-    speedPermisson = false;
+  if (Math.floor((score+1) / 10) == speedPermisson && score != 0 ) {
+    speed = speed + 3;
+    speedPermisson++;
   }
-  console.log(speed)
+  console.log(speed);
   //用setTimeOut（）不停的循环游戏：每隔（1500/speed）时间就更新一下游戏页面，蛇就动起来了。1500是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
   setTimeout(drawGame, 1500 / speed);
@@ -166,7 +171,13 @@ function clearScreen() {
 //更新infamation
 function drawInformation() {
   console.log(scores.innerHTML)
-  scores.innerHTML = "速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
+  if (roundS < 0) {
+    scores.innerHTML = "速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
+  }
+  else if (roundS > 0) {
+    scores.innerHTML = "第"+roundS+"关  速度:" + speed + " 分数:" + score + " 长度:" + tailLength;
+  }
+  
 }
 
 //画一个苹果：x坐标为appleX * tileCount，y坐标为appleY * tileCount，宽和高为tileSize
@@ -178,9 +189,11 @@ function drawApple() {
     ctx.fillRect(appleX[i] * tileSize, appleY[i] * tileSize, tileSnakeSize, tileSnakeSize);
   }
 }
-//画特殊果实的条件
+
+//不同回合画出特殊果实的不同条件
 function drawWinElements() {
-  if (score >= 17 && gatherWinElement[0] == false) {
+  if (roundS == 1) {
+    if (score >= 17 && gatherWinElement[0] == false) {
     winElementIndex = 0;
     drawWinElement(winElementIndex);
   }
@@ -195,7 +208,27 @@ function drawWinElements() {
   else if (score >= 26 && speed >= 22 && tailLength >= 24 && gatherWinElement[3] == false) {
     winElementIndex = 3;
     drawWinElement(winElementIndex);
+    }
   }
+  else if (roundS == 2) {
+    if (score >= 17 && gatherWinElement[0] == false) {
+      winElementIndex = 0;
+      drawWinElement(winElementIndex);
+    }
+    else if (speed >= 16 && gatherWinElement[1] == false) {
+      winElementIndex = 1;
+      drawWinElement(winElementIndex);
+    }
+    else if (tailLength >= 18 && gatherWinElement[2] == false) {
+      winElementIndex = 2;
+      drawWinElement(winElementIndex);
+    }
+    else if (score >= 28 && speed <= 13 && tailLength <= 10 && gatherWinElement[3] == false) {
+      winElementIndex = 3;
+      drawWinElement(winElementIndex);
+    }
+  }
+
   console.log(gatherWinElement)
 }
 
@@ -242,9 +275,6 @@ function checkAppleCollision() {
   for (var i = 0; i < appleNumber; i++) {
     if (headX === appleX[i] && headY === appleY[i]) {
       tailLength++;
-      if (appleColors[appleColorIndex[i]] != "orange") {
-        speedPermisson = true;
-      }
       //音乐播放
       gulpSound.play();
       checkAppleColor(appleColorIndex[i]);
@@ -330,7 +360,12 @@ function checkWinGame() {
     checkWinGameFlag = false;
   }
   else {
-    gameOverText = "获得胜利！";
+    if (roundS == 1) {
+      gameOverText = "回车下一关";
+    }
+    else if (roundS == 2) {
+      gameOverText = "获得胜利！";
+    }
     checkWinGameFlag = true;
   }
 }
@@ -338,10 +373,10 @@ function checkWinGame() {
 //查看游戏是否结束
 function isGameOver() {
   let gameOver = false;
-  if (yVelocity === 0 && xVelocity === 0) {
+  if (yVelocity === 0 && xVelocity === 0) {//未开始
     return false;
   }
-  if (checkWinGameFlag) {
+  if (checkWinGameFlag) {//胜利了
     gameOver = true;
   } else {
     //蛇头撞到墙，那就把gameover变量改成true
@@ -410,6 +445,16 @@ function keyDown(event) {
         inputsYVelocity = 0;
         inputsXVelocity = 1;
       }
+      else if (event.keyCode == 13 && checkWinGameFlag) { //闯关模式从第一关切换到第二关
+        if (roundS == 1)
+        {
+          roundS = 2
+        }
+        else {
+          roundS = 1;
+        }
+        rePlayGame();
+      }
       //使接下来的按键失去效果
       flag = false;
     }
@@ -445,6 +490,16 @@ function keyDown(event) {
         inputsYVelocity = 0;
         inputsXVelocity = -1;
       }
+      else if(event.keyCode == 13 && checkWinGameFlag){ 
+        if (roundS == 1)
+        {
+          roundS = 2
+        }
+        else {
+          roundS = 1;
+        }
+        rePlayGame();
+      }
       //使接下来的按键失去效果
       flag = false;
     }
@@ -465,9 +520,7 @@ function CloseDiv(show_div, bg_div) {
   document.getElementById(bg_div).style.display = 'none';
 }
 
-
-//------------------重玩(初始化)----------------
-function rePlayGame() {
+function init() {
   //--------------关于蛇--------------
   //蛇头的坐标
   headX = tileCount / 2;
@@ -478,7 +531,6 @@ function rePlayGame() {
 
   //蛇的速度，随着吃越多的苹果，速度也会变得越快
   speed = 7;
-  speedPermisson = true;
 
   //存放蛇身每一块格子的坐标，等下循环一个这个数组，就能把蛇更新起来
   snakeParts = [];
@@ -506,22 +558,31 @@ function rePlayGame() {
   winElementX = Math.round(Math.random() * (tileCount - 1));
   winElementY = Math.round(Math.random() * (tileCount - 1));
   winElementIndex = 0;//该生成的特殊果实下标
-  winElement = ["1", "0", "2", "4"];//元素
   gatherWinElement = [false, false, false, false];//是否已经收集了该元素
   gameOverText = "游戏结束！"
-  checkWinGameFlag = false;
+  checkWinGameFlag = false;//是否胜利了
 
   //--------------记录分数和音效--------------
   //记录分数
   score = 0;
+  //记录增加速度的回合数
+  speedPermisson = 1;
 
   //--------------暂停按钮--------------
   stopGameFlag = false;
   stopGameInnertxt.innerHTML = "暂停";
+}
 
-  drawInformation();
-  backmusic.play();
-  drawGame();
+//------------------重玩(初始化)----------------
+function rePlayGame() {
+if (stopGameFlag || gameovers) {
+    console.log("执行中");
+    init();
+    gameovers = false;
+    drawInformation();
+    backmusic.play();
+    drawGame();
+  }
 }
 
 //暂停
@@ -533,7 +594,9 @@ function stopGame() {
   else if (stopGameFlag == true) {
     stopGameFlag = false;
     stopGameInnertxt.innerHTML = "暂停";
-    drawGame();
+    if (replayclick) {
+      drawGame();
+    }
   }
 }
 
@@ -543,10 +606,12 @@ function changeMode() {
     if (modeFlag){
       modeFlag = false;
       modeInnertxt.innerHTML = "无尽模式";
+      roundS = -1;
     }
     else if (modeFlag == false) {
       modeFlag = true;
       modeInnertxt.innerHTML = "闯关模式";
+      roundS = 1;
     }
   }
 }
