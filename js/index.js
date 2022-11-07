@@ -595,9 +595,7 @@ function stopGame() {
   else if (stopGameFlag == true) {
     stopGameFlag = false;
     stopGameInnertxt.innerHTML = "暂停";
-    if (replayclick) {
-      drawGame();
-    }
+    drawGame();
   }
 }
 
