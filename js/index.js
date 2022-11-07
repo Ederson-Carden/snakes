@@ -151,12 +151,6 @@ function drawGame() {
     checkWinElementCollision();
   }
 
-  //随着吃到的苹果越多，速度也越快
-  if (Math.floor((score+1) / 10) == speedPermisson && score != 0 ) {
-    speed = speed + 3;
-    speedPermisson++;
-  }
-  console.log(speed);
   //用setTimeOut（）不停的循环游戏：每隔（1500/speed）时间就更新一下游戏页面，蛇就动起来了。1500是毫秒=1秒钟
   //setTimeOut（）用法https://www.runoob.com/w3cnote/javascript-settimeout-usage.html
   setTimeout(drawGame, 1500 / speed);
@@ -279,6 +273,13 @@ function checkAppleCollision() {
       gulpSound.play();
       checkAppleColor(appleColorIndex[i]);
       randomApple();
+      
+      //随着吃到的苹果越多，速度也越快,加速
+      if (Math.floor((score) / 10) == speedPermisson && score != 0 ) {
+        speed = speed + 3;
+        speedPermisson++;
+      }
+      console.log(speed);
       //画分数
       drawInformation();
     }
